@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Human Time</title>
+    <style>
+      body {
+        background: #333;
+        color: #eee;
+
+        font-family: sans-serif;
+
+        margin: 2rem;
+
+        text-align: center;
+      }
+
+      input[type="datetime-local"] {
+        margin-bottom: 1em;
+      }
+    </style>
+  </head>
+  <body>
+    <input id="picker" type="datetime-local" onchange="evalTime()" />
+
+    <div id="custom"></div>
+    <div id="loaded"></div>
+
+    <script>
+      const MS_PER_SECOND = 1000;
+      const SECONDS_PER_MINUTE = 60;
+      const MINUTES_PER_HOUR = 60;
+      const HOURS_PER_DAY = 24;
+      const DAYS_PER_WEEK = 7;
+      const DAYS_PER_MONTH = 30; // Average month length
+      const DAYS_PER_YEAR = 365; // Average year length
+
+      const SECONDS_PER_HOUR = SECONDS_PER_MINUTE * MINUTES_PER_HOUR;
+      const SECONDS_PER_DAY = SECONDS_PER_HOUR * HOURS_PER_DAY;
+      const SECONDS_PER_WEEK = SECONDS_PER_DAY * DAYS_PER_WEEK;
+      const SECONDS_PER_MONTH = SECONDS_PER_DAY * DAYS_PER_MONTH;
+      const SECONDS_PER_YEAR = SECONDS_PER_DAY * DAYS_PER_YEAR;
+      const SECONDS_PER_DECADE = SECONDS_PER_YEAR * 10;
+      const SECONDS_PER_CENTURY = SECONDS_PER_YEAR * 100;
+      const SECONDS_PER_MILLENNIUM = SECONDS_PER_YEAR * 1000;
+
+      const isLeapYear = (year) =>
+        year % 400 === 0 || (year % 100 !== 0 && year % 4 === 0);
+
+      const getDaysInYear = (year) => (isLeapYear(year) ? 366 : 365);
+
+      const getDaysInMonth = (month, year) =>
+        new Date(year, month, 0).getDate();
+
+      const getTimeAgo = (date) => {
+        const now = new Date();
+        const diff = now - date;
+
+        let seconds = Math.floor(diff / MS_PER_SECOND);
+        let millennia = Math.floor(seconds / SECONDS_PER_MILLENNIUM);
+        seconds %= SECONDS_PER_MILLENNIUM;
+
+        let centuries = Math.floor(seconds / SECONDS_PER_CENTURY);
+        seconds %= SECONDS_PER_CENTURY;
+
+        let decades = Math.floor(seconds / SECONDS_PER_DECADE);
+        seconds %= SECONDS_PER_DECADE;
+
+        let years = Math.floor(seconds / SECONDS_PER_YEAR);
+        seconds %= SECONDS_PER_YEAR;
+
+        let months = Math.floor(seconds / SECONDS_PER_MONTH);
+        seconds %= SECONDS_PER_MONTH;
+
+        let weeks = Math.floor(seconds / SECONDS_PER_WEEK);
+        seconds %= SECONDS_PER_WEEK;
+
+        let days = Math.floor(seconds / SECONDS_PER_DAY);
+        seconds %= SECONDS_PER_DAY;
+
+        let hours = Math.floor(seconds / SECONDS_PER_HOUR);
+        seconds %= SECONDS_PER_HOUR;
+
+        let minutes = Math.floor(seconds / SECONDS_PER_MINUTE);
+        seconds %= SECONDS_PER_MINUTE;
+
+        const timeAgo = [];
+
+        if (millennia > 0)
+          timeAgo.push(`${millennia} millennium${millennia > 1 ? "s" : ""}`);
+        if (centuries > 0)
+          timeAgo.push(`${centuries} centur${centuries > 1 ? "ies" : "y"}`);
+        if (decades > 0)
+          timeAgo.push(`${decades} decade${decades > 1 ? "s" : ""}`);
+        if (years > 0) timeAgo.push(`${years} year${years > 1 ? "s" : ""}`);
+        if (months > 0) timeAgo.push(`${months} month${months > 1 ? "s" : ""}`);
+        if (weeks > 0) timeAgo.push(`${weeks} week${weeks > 1 ? "s" : ""}`);
+        if (days > 0) timeAgo.push(`${days} day${days > 1 ? "s" : ""}`);
+        if (hours > 0) timeAgo.push(`${hours} hour${hours > 1 ? "s" : ""}`);
+        if (minutes > 0)
+          timeAgo.push(`${minutes} minute${minutes > 1 ? "s" : ""}`);
+        if (seconds > 0 || timeAgo.length === 0)
+          timeAgo.push(`${seconds} second${seconds > 1 ? "s" : ""}`);
+
+        return timeAgo.length ? timeAgo.join(", ") + " ago" : "Just now";
+      };
+
+      const evalTime = () => {
+        const date = picker.value;
+        const ago = getTimeAgo(new Date(date));
+
+        custom.innerHTML = ago
+          ? `Custom: ${ago}`
+          : "Custom date is in the future!";
+      };
+
+      const showLoadedTime = (date) => {
+        const ago = getTimeAgo(date);
+        if (ago) {
+          loaded.innerHTML = `Loaded: ${ago}`;
+        }
+      };
+
+      const showTimes = () => {
+        const date = new Date();
+
+        setInterval(() => {
+          showLoadedTime(date);
+
+          if (picker.value) {
+            evalTime();
+          }
+        }, 1000);
+      };
+
+      showTimes();
+    </script>
+  </body>
+</html>
